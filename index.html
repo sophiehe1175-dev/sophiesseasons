@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sophie's Seasons</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:ital,wght@1,500;1,600&family=Shrikhand&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,144,600,100,1;1,14,400,100,1&family=Nunito:wght@400;600;700&display=swap">
 <style>
 /* Layout: a cream scrapbook page. Entrance = cats in an apple core, tap to pour the latte. Autumn page = tilted photo frames with tape, About me at the bottom. */
 :root {
@@ -350,6 +350,12 @@ html { overflow-x: clip; }
 .note { font-size: 1rem; } .slot { font-size: 1.25rem; } .frame figcaption { font-size: 1.1rem; }
 .contact { font-size: 1.2rem; } .copy { font-size: 1rem; } .foot { font-size: 1rem; }
 .scrap figcaption { font-size: .98rem; } .av-label { font-size: .85rem; } .lb-fig figcaption { font-size: 1.35rem; } .cat-bubble .cap { font-size: 1.05rem; }
+
+/* fonts v3: Fraunces, the soft, wobbly "cozy bakery" serif. Titles upright and plump, small text in a gentle italic. */
+:root { --font-title: 'Fraunces', Georgia, serif; --font-display: 'Fraunces', Georgia, serif; }
+.chip, .kicker, .hint, .back, .note, .slot, .frame figcaption, .contact, .copy, .foot, .scrap figcaption, .av-label, .lb-fig figcaption, .cat-bubble .cap, .toast { font-style: italic; font-weight: 400; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 14; }
+.hero h1, .about h2, .collage-wrap h2, .cat-head h1 { font-family: var(--font-title); font-style: normal; font-weight: 600; letter-spacing: -.01em; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
+.hero h1 { font-size: clamp(3.2rem, 11.5vw, 5.8rem); line-height: .98; }
 </style>
 </head>
 <body>
