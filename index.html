@@ -405,7 +405,13 @@ html { overflow-x: clip; }
 .about-img img.about-photo { mix-blend-mode: normal; filter: saturate(1.05) brightness(1.03); }
 
 /* default arrangement of the cat gallery (matches Sophie's own drag layout) */
-#photos > li:nth-child(1) { order: 1; } #photos > li:nth-child(3) { order: 5; } #photos > li:nth-child(2) { order: 3; } #photos > li:nth-child(4) { order: 4; } #photos > li:nth-child(5) { order: 2; } #photos > li:nth-child(6) { order: 6; }
+#photos > li:nth-child(1) { order: 1; } #photos > li:nth-child(3) { order: 5; } #photos > li:nth-child(2) { order: 4; } #photos > li:nth-child(4) { order: 3; } #photos > li:nth-child(5) { order: 2; } #photos > li:nth-child(6) { order: 6; }
+/* Windy & Winnie are sisters: dashed arc between their faces */
+.cat-row { position: relative; }
+.sister-line { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
+.sister-line path { fill: none; stroke: var(--coffee); stroke-width: 3; stroke-dasharray: 7 7; stroke-linecap: round; opacity: .85; }
+/* the centre photo on wide screens is a little bigger */
+@media (min-width: 720px) { #photos > li:nth-child(2) { transform: scale(1.1); z-index: 2; } }
 </style>
 </head>
 <body>
@@ -565,10 +571,11 @@ html { overflow-x: clip; }
    face   = where the face is in the cat's first main photo ("x% y%", like object-position)
    zoom   = how close the circle crops in (1 = whole photo height/width)
    extra  = ids of extra photos in #cat-extras to add to this cat's page
+   sister = (optional) id of a sister; their faces get a dashed line between them
    avatar = (optional) id of a square face photo in #cat-extras to use instead of cropping the main photo */
 var CATS = [
   { id: 'ginger', name: 'Ginger', face: '30% 62%', zoom: 1.9, extra: ['extra-ginger-gold', 'extra-ginger-2', 'extra-ginger-4'], avatar: 'avatar-ginger' },
-  { id: 'windy',  name: 'Windy',  face: '30% 45%', zoom: 1.8, extra: ['extra-windy-1', 'extra-windy-2'], avatar: 'avatar-windy' },
+  { id: 'windy',  name: 'Windy',  face: '30% 45%', zoom: 1.8, extra: ['extra-windy-1', 'extra-windy-2'], avatar: 'avatar-windy', sister: 'winnie' },
   { id: 'winnie', name: 'Winnie', face: '45% 61%', zoom: 3.2, avatar: 'avatar-winnie', extra: ['extra-winnie-1', 'extra-winnie-2'] },
   { id: 'schrodinger', name: 'Schrödinger', face: '50% 45%', zoom: 1, extra: ['extra-schrodinger'], avatar: 'avatar-schrodinger' }
 ];
@@ -805,8 +812,32 @@ setHint('tap the cats');
     if (!catPhoto(cat.id) && !(cat.avatar && document.getElementById(cat.avatar))) return;
     var a = catLink(cat, 'cat-bubble');
     var cap = document.createElement('span'); cap.className = 'cap'; cap.textContent = cat.name; a.appendChild(cap);
+    a.setAttribute('data-cat', cat.id);
     row.appendChild(a);
   });
+  // dashed arc over the faces of sisters (CATS: sister)
+  var sisLine = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  sisLine.setAttribute('class', 'sister-line'); sisLine.setAttribute('aria-hidden', 'true');
+  row.appendChild(sisLine);
+  function drawSisters() {
+    var box = row.getBoundingClientRect(), html = '';
+    if (!box.width) return;
+    CATS.forEach(function (cat) {
+      if (!cat.sister) return;
+      var A = row.querySelector('.cat-bubble[data-cat="' + cat.id + '"] .face'), B = row.querySelector('.cat-bubble[data-cat="' + cat.sister + '"] .face');
+      if (!A || !B) return;
+      var a = A.getBoundingClientRect(), b = B.getBoundingClientRect();
+      if (a.left > b.left) { var t = a; a = b; b = t; }
+      // from the upper-right of one face to the upper-left of the other, bowing up
+      var x1 = a.left + a.width * .7 - box.left, y1 = a.top + a.height * .05 - box.top;
+      var x2 = b.left + b.width * .3 - box.left, y2 = b.top + b.height * .05 - box.top;
+      var lift = Math.max(22, Math.min(40, (x2 - x1) * .4));
+      html += '<path d="M' + x1 + ' ' + y1 + ' C ' + (x1 + 10) + ' ' + (y1 - lift) + ', ' + (x2 - 10) + ' ' + (y2 - lift) + ', ' + x2 + ' ' + y2 + '"/>';
+    });
+    sisLine.innerHTML = html;
+  }
+  if (window.ResizeObserver) new ResizeObserver(drawSisters).observe(row); else window.addEventListener('resize', drawSisters);
+  drawSisters();
   // floating avatar on each main photo (which cat = the frame's data-cat)
   document.querySelectorAll('#photos .frame[data-cat]').forEach(function (frame) {
     var cat = catById(frame.getAttribute('data-cat')), photo = frame.querySelector('.photo');
