@@ -573,7 +573,7 @@ html { overflow-x: clip; }
 <div id="cat" class="autumn" hidden>
   <div class="topbar"><button class="back" id="back2">&larr; back to autumn</button></div>
   <section class="cat-head"><span class="cat-ava" id="cat-ava"></span>
-    <div><h1 id="cat-name"></h1><p>Autumn, in more photos. <span class="note">Example page: each bubble gets its own set</span></p></div></section>
+    <div><h1 id="cat-name"></h1><p id="cat-sub"></p></div></section>
   <ul class="gallery" id="cat-grid"></ul>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -760,15 +760,14 @@ setHint('tap the cats');
     var cat = catById(id);
     if (!cat) { location.hash = '#autumn'; return; }
     document.getElementById('cat-name').textContent = cat.name;
+    document.getElementById('cat-sub').textContent = 'More pictures of ' + cat.name;
     var ava = document.getElementById('cat-ava'); ava.innerHTML = ''; ava.appendChild(catFace(cat));
-    // this cat's photos from the main photo area, then its extra photos, then empty slots
+    // only photos that are NOT already on the main cats page
+    var onMain = {};
+    document.querySelectorAll('#photos .photo').forEach(function (im) { onMain[im.src] = true; });
     var items = [];
-    document.querySelectorAll('#photos .frame[data-cat="' + id + '"]').forEach(function (f) {
-      var im = f.querySelector('.photo'), cap = f.querySelector('figcaption');
-      items.push({ src: im.src, alt: im.alt, cap: cap ? cap.textContent : '' });
-    });
     (cat.extra || []).forEach(function (eid) {
-      var im = document.getElementById(eid); if (im) items.push({ src: im.src, alt: im.alt, cap: im.getAttribute('data-caption') || '' });
+      var im = document.getElementById(eid); if (im && !onMain[im.src]) items.push({ src: im.src, alt: im.alt, cap: im.getAttribute('data-caption') || '' });
     });
     var caps = ['Place, month. One line about the moment.', 'Same animal, a different light.', 'A short story, ten words or fewer.'];
     var html = '', esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
