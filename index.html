@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sophie's Seasons</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nunito:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:ital,wght@1,500;1,600&family=Shrikhand&display=swap">
 <style>
 /* Layout: a cream scrapbook page. Entrance = cats in an apple core, tap to pour the latte. Autumn page = tilted photo frames with tape, About me at the bottom. */
 :root {
@@ -335,8 +335,21 @@ html { overflow-x: clip; }
 @media (min-width: 700px) {
   .page-header { aspect-ratio: auto; height: min(50vw, 500px); }
   .page-header-img { object-position: 50% 55%; transform: scale(1.12); transform-origin: 50% 50%; }
-  .hero { margin-top: -6px; }
+  .hero { margin-top: -96px; }
 }
+
+/* fonts v2: retro chunky titles (Shrikhand) + elegant italic serif for the handwritten-style text (Playfair Display) */
+:root { --font-title: 'Shrikhand', 'Playfair Display', Georgia, serif; --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif; }
+.chip, .kicker, .hint, .back, .note, .slot, .frame figcaption, .contact, .copy, .foot, .scrap figcaption, .av-label, .lb-fig figcaption, .cat-bubble .cap, .toast { font-style: italic; font-weight: 500; }
+.hero h1, .about h2, .collage-wrap h2, .cat-head h1 { font-family: var(--font-title); font-style: normal; font-weight: 400; letter-spacing: .01em; }
+.hero h1 { font-size: clamp(3rem, 10.5vw, 5.4rem); line-height: 1.02; }
+.about h2 { font-size: 2.1rem; }
+.collage-wrap h2 { font-size: 2.2rem; }
+.cat-head h1 { font-size: clamp(2.2rem, 8vw, 3.4rem); }
+.chip { font-size: 1.05rem; } .kicker { font-size: 1.3rem; } .hint { font-size: 1.1rem; } .back { font-size: 1.1rem; }
+.note { font-size: 1rem; } .slot { font-size: 1.25rem; } .frame figcaption { font-size: 1.1rem; }
+.contact { font-size: 1.2rem; } .copy { font-size: 1rem; } .foot { font-size: 1rem; }
+.scrap figcaption { font-size: .98rem; } .av-label { font-size: .85rem; } .lb-fig figcaption { font-size: 1.35rem; } .cat-bubble .cap { font-size: 1.05rem; }
 </style>
 </head>
 <body>
