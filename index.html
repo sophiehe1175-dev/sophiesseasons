@@ -435,6 +435,33 @@ body.is-spring { background: #F6E3DC url("data:image/jpeg;base64,/9j/4AAQSkZJRgA
 #spring .frame .photo, #spring .frame .slot { box-shadow: 0 0 0 1px rgba(59,36,22,.14), 0 0 34px 8px rgba(246,190,200,.6), 0 12px 24px rgba(59,36,22,.26); }
 #spring .tape { background: rgba(240,166,184,.6); }
 #spring .slot.s6 { background: linear-gradient(160deg, #D98DA0, #F2BDBA); } #spring .slot.s4 { background: linear-gradient(200deg, #8FB57C, #CFE2A9); }
+
+/* ---- Bossa nova player ---- */
+.bgm{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;-webkit-tap-highlight-color:transparent}
+.bgm-btn{position:relative;width:64px;height:64px;border:0;padding:0;border-radius:50%;background:none;cursor:pointer;filter:drop-shadow(0 6px 10px rgba(59,36,22,.35));transition:transform .25s}
+.bgm-btn:hover{transform:scale(1.06) rotate(-4deg)}
+.bgm-btn:active{transform:scale(.94)}
+.bgm-disc{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#F2C9C4 0 17%,#E8C27A 17% 21%,#2B1B12 21% 23%,#3B2416 23% 38%,#2B1B12 38% 40%,#3B2416 40% 56%,#2B1B12 56% 58%,#3B2416 58% 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08);animation:bgm-spin 4s linear infinite;animation-play-state:paused}
+.bgm-disc::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 20deg,transparent 0 20%,rgba(255,255,255,.18) 25%,transparent 30% 70%,rgba(255,255,255,.14) 75%,transparent 80%)}
+.bgm-icon{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);fill:#8E3B4A}
+.bgm-icon .pa{display:none}
+.bgm.on .bgm-icon .pl{display:none}.bgm.on .bgm-icon .pa{display:block}
+.bgm.on .bgm-disc{animation-play-state:running}
+.bgm.on .bgm-btn{animation:bgm-bob 1.6s ease-in-out infinite}
+.bgm-tag{font-family:'Caveat',var(--font-display);font-size:1.15rem;line-height:1;color:var(--chestnut);background:var(--paper);padding:5px 12px 6px;border-radius:6px;transform:rotate(-3deg);box-shadow:0 4px 10px rgba(59,36,22,.25);white-space:nowrap;position:relative;opacity:.95}
+.bgm-tag::before{content:"";position:absolute;left:50%;top:-7px;width:34px;height:12px;margin-left:-17px;background:rgba(242,201,196,.8);transform:rotate(3deg)}
+.bgm-tag .on-t{display:none}.bgm.on .bgm-tag .on-t{display:inline}.bgm.on .bgm-tag .off-t{display:none}
+.bgm-notes{position:absolute;right:0;bottom:60px;width:64px;height:90px;pointer-events:none}
+.bgm-notes i{position:absolute;bottom:0;left:50%;font-style:normal;font-size:20px;color:#B5546A;opacity:0}
+.bgm.on .bgm-notes i{animation:bgm-note 3s ease-in infinite}
+.bgm-notes i:nth-child(1){margin-left:-16px}
+.bgm-notes i:nth-child(2){margin-left:2px;animation-delay:1s;color:#D9772B}
+.bgm-notes i:nth-child(3){margin-left:14px;animation-delay:2s;color:#C9962F}
+@keyframes bgm-spin{to{transform:rotate(360deg)}}
+@keyframes bgm-bob{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes bgm-note{0%{transform:translate(0,0) rotate(-10deg) scale(.7);opacity:0}15%{opacity:.95}100%{transform:translate(14px,-80px) rotate(14deg) scale(1.1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.bgm.on .bgm-disc,.bgm.on .bgm-btn,.bgm.on .bgm-notes i{animation:none}}
+@media (max-width:699px){.bgm{right:12px;bottom:12px}.bgm-btn{width:56px;height:56px}.bgm-tag{font-size:1rem}.bgm-notes{width:56px;bottom:54px}}
 </style>
 </head>
 <body>
@@ -608,6 +635,15 @@ body.is-spring { background: #F6E3DC url("data:image/jpeg;base64,/9j/4AAQSkZJRgA
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<div class="bgm" id="bgm">
+  <button class="bgm-btn" id="bgm-btn" type="button" aria-label="Play bossa nova" aria-pressed="false">
+    <span class="bgm-disc"></span>
+    <svg class="bgm-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="pl" d="M7 4.5v15l13-7.5z"/><g class="pa"><rect x="5.5" y="4.5" width="4.5" height="15" rx="1.2"/><rect x="14" y="4.5" width="4.5" height="15" rx="1.2"/></g></svg>
+  </button>
+  <span class="bgm-tag"><span class="off-t">play bossa nova</span><span class="on-t">now playing &#9834;</span></span>
+  <span class="bgm-notes" aria-hidden="true"><i>&#9834;</i><i>&#9835;</i><i>&#9834;</i></span>
+  <audio id="bgm-audio" loop preload="none"></audio>
+</div>
 <script>
 /* ===== My cats: edit names, faces and extra photos here =====
    id     = the data-cat value on the main photo frames (and the #cat/<id> page)
@@ -962,6 +998,18 @@ setHint('tap the cats');
   route();
 })();
 
+
+(function(){
+  var box=document.getElementById('bgm'),btn=document.getElementById('bgm-btn'),au=document.getElementById('bgm-audio');
+  if(!box||!btn)return;
+  btn.addEventListener('click',function(){
+    var on=!box.classList.contains('on');
+    box.classList.toggle('on',on);
+    btn.setAttribute('aria-pressed',on);
+    btn.setAttribute('aria-label',on?'Pause bossa nova':'Play bossa nova');
+    if(au.getAttribute('src')){ if(on){var p=au.play();if(p&&p.catch)p.catch(function(){});}else au.pause(); }
+  });
+})();
 </script>
 
 </body>
