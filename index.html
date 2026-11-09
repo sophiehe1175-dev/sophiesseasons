@@ -399,6 +399,11 @@ html { overflow-x: clip; }
 .verse p { font-family: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive; font-style: normal; font-weight: 500; font-size: 1.55rem; line-height: 1.25; font-variation-settings: normal; }
 .verse footer { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: .9rem; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 14; }
 .about-img img.about-photo { mix-blend-mode: normal; filter: saturate(1.05) brightness(1.03); }
+
+/* default arrangement of the cat gallery (matches Sophie's own drag layout) */
+#photos > li:nth-child(1) { order: 1; } #photos > li:nth-child(5) { order: 2; } #photos > li:nth-child(4) { order: 3; }
+#photos > li:nth-child(3) { order: 4; } #photos > li:nth-child(2) { order: 5; } #photos > li:nth-child(6) { order: 6; }
+@media (min-width: 720px) { #photos > li:nth-child(3) .frame { --dy: 46px; } }
 </style>
 </head>
 <body>
