@@ -371,6 +371,20 @@ html { overflow-x: clip; }
 .page-note { margin: 0 0 22px; text-shadow: 0 0 3px #FBF3E2, 0 0 8px #FBF3E2, 0 0 14px #FBF3E2; }
 .slot.s6 { background: linear-gradient(160deg, #A8392B, #D9772B); }
 @media (prefers-reduced-motion: reduce) { .pg, .page { transition: none; animation: none; } }
+
+/* pager v2: no numbers; the current fruit is simply bigger. A hand-drawn "poke here" arrow invites the first tap. */
+.pager { position: relative; padding-bottom: 52px; }
+.pg { opacity: .7; transform: scale(.9); }
+.pager { flex-wrap: nowrap; align-items: center; padding-top: 22px; }
+.pg.on { transform: scale(1.32); opacity: 1; z-index: 1; }
+.pg:hover, .pg:focus-visible { transform: translateY(-3px) scale(1); }
+.pg.on:hover, .pg.on:focus-visible { transform: scale(1.36); }
+.poke { position: absolute; left: 0; bottom: 0; display: flex; align-items: flex-end; gap: 2px; color: var(--brick); transform: rotate(-4deg); pointer-events: none; animation: poke 1.6s ease-in-out infinite; transition: opacity .4s ease; }
+.poke.gone { opacity: 0; }
+.poke-txt { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.15rem; line-height: 1; padding-bottom: 4px; text-shadow: 0 0 3px #FBF3E2, 0 0 8px #FBF3E2, 0 0 14px #FBF3E2; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 14; white-space: nowrap; }
+.poke svg { flex: none; filter: drop-shadow(0 0 4px #FBF3E2); }
+@keyframes poke { 0%, 100% { transform: rotate(-4deg) translate(0, 0); } 50% { transform: rotate(-4deg) translate(5px, -5px); } }
+@media (prefers-reduced-motion: reduce) { .poke { animation: none; } }
 </style>
 </head>
 <body>
@@ -446,10 +460,11 @@ html { overflow-x: clip; }
     </div>
   </section>
   <nav class="pile pager" id="pager" aria-label="Autumn pages">
-    <button class="pg on" data-page="1" aria-current="page" aria-label="Page 1, the pumpkin: the cats"><svg class="stk" viewBox="0 0 210 260" style="width:92px;--r:-8deg;animation-delay:0s"><use href="#t-pumpkin"/></svg><span class="pg-num">1</span></button>
-    <button class="pg" data-page="2" aria-label="Page 2, the figs: BJD photos"><svg class="stk" viewBox="0 0 255 260" style="width:118px;--r:5deg;animation-delay:-1s"><use href="#t-figs"/></svg><span class="pg-num">2</span></button>
-    <button class="pg" data-page="3" aria-label="Page 3, the apple: coming soon"><svg class="stk" viewBox="0 0 260 257" style="width:96px;--r:-6deg;animation-delay:-2s"><use href="#t-apple"/></svg><span class="pg-num">3</span></button>
-    <button class="pg" data-page="4" aria-label="Page 4, the toast: coming soon"><svg class="stk" viewBox="0 0 260 245" style="width:112px;--r:7deg;animation-delay:-3s"><use href="#t-toast"/></svg><span class="pg-num">4</span></button>
+    <button class="pg on" data-page="1" aria-current="page" aria-label="Page 1, the pumpkin: the cats"><svg class="stk" viewBox="0 0 210 260" style="width:92px;--r:-8deg;animation-delay:0s"><use href="#t-pumpkin"/></svg></button>
+    <button class="pg" data-page="2" aria-label="Page 2, the figs: BJD photos"><svg class="stk" viewBox="0 0 255 260" style="width:118px;--r:5deg;animation-delay:-1s"><use href="#t-figs"/></svg></button>
+    <button class="pg" data-page="3" aria-label="Page 3, the apple: coming soon"><svg class="stk" viewBox="0 0 260 257" style="width:96px;--r:-6deg;animation-delay:-2s"><use href="#t-apple"/></svg></button>
+    <button class="pg" data-page="4" aria-label="Page 4, the toast: coming soon"><svg class="stk" viewBox="0 0 260 245" style="width:112px;--r:7deg;animation-delay:-3s"><use href="#t-toast"/></svg></button>
+  <span class="poke" id="poke" aria-hidden="true"><span class="poke-txt">poke here</span><svg viewBox="0 0 70 56" width="62" height="50"><path d="M6 50 C 10 26, 28 14, 56 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M44 3 L58 7.5 L49 19" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
   </nav>
   <div class="stripe" role="presentation"></div>
   <section class="page" id="page-1" data-page="1"><h2 class="page-title">The cats</h2><ul class="gallery" id="photos">
@@ -718,7 +733,7 @@ setHint('tap the cats');
     pgPages.forEach(function (s) { s.hidden = s.getAttribute('data-page') !== String(n); });
     pgBtns.forEach(function (b) { var on = b.getAttribute('data-page') === String(n); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   }
-  pgBtns.forEach(function (b) { b.addEventListener('click', function () { showPage(b.getAttribute('data-page')); }); });
+  pgBtns.forEach(function (b) { b.addEventListener('click', function () { showPage(b.getAttribute('data-page')); var pk = document.getElementById('poke'); if (pk) pk.classList.add('gone'); }); });
   document.getElementById('avatar').addEventListener('click', function () {
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     showPage(1);
