@@ -244,13 +244,44 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
 .fx-sticker { position: absolute; top: 50%; left: 50%; translate: -50% -50%; z-index: 1; pointer-events: none; }
 .fx-sticker svg { display: block; height: 1.2em; width: auto; filter: drop-shadow(0 4px 4px rgba(59,36,22,.3)); }
 @media (prefers-reduced-motion: reduce) { .fx-letter { transition: none; } .fx-letter.returning .fx-char { animation: none; } .fx-sticker { display: none; } }
-/* cat avatar on each main photo */
+/* cat avatar on each main photo: floats like a jellyfish just outside the photo */
+#photos, #photos > li, #photos .frame, .photo-wrap { overflow: visible; }
 .photo-wrap { position: relative; display: block; }
-.cat-link { position: absolute; right: 10px; bottom: 10px; z-index: 4; width: 44px; height: 44px; border-radius: 50%; display: block; transition: transform .25s ease; -webkit-tap-highlight-color: transparent; }
-.cat-link img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid rgba(251,243,226,.5); box-shadow: 0 0 16px 3px rgba(232,194,122,.65), 0 4px 10px rgba(59,36,22,.3); }
-.cat-link:hover, .cat-link:focus-visible { transform: scale(1.12); }
+.cat-link { position: absolute; z-index: 4; right: 6px; width: 44px; height: 44px; border-radius: 50%; display: block; -webkit-tap-highlight-color: transparent;
+  --dur: 7.5s; --delay: -1s; animation: jelly-float var(--dur) ease-in-out var(--delay) infinite; }
+.cat-link img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid rgba(251,243,226,.5); transition: transform .3s ease;
+  box-shadow: 0 0 14px 3px rgba(232,194,122,.55), 0 4px 10px rgba(59,36,22,.25); animation: jelly-glow var(--dur) ease-in-out var(--delay) infinite; }
+/* odd frames: below the photo, beside the caption; drifts down and away from the photo */
+#photos > li:nth-child(odd) .cat-link { top: calc(100% - 3px); --lift: 1; }
+#photos > li:nth-child(odd) .frame[data-cat] figcaption { padding-right: 58px; }
+/* even frames: above the photo (no corner sticker there); drifts up and away */
+#photos > li:nth-child(even) .cat-link { bottom: calc(100% - 3px); --lift: -1; }
+#photos > li:nth-child(5n+1) .cat-link { --dur: 6s;   --delay: -1s; }
+#photos > li:nth-child(5n+2) .cat-link { --dur: 7.5s; --delay: -3s; }
+#photos > li:nth-child(5n+3) .cat-link { --dur: 9s;   --delay: -5s; }
+#photos > li:nth-child(5n+4) .cat-link { --dur: 6.8s; --delay: -2s; }
+#photos > li:nth-child(5n)   .cat-link { --dur: 8.2s; --delay: -4s; }
+@keyframes jelly-float {
+  0%, 100% { transform: translate(0, 0) rotate(-3deg) scale(1); }
+  25%      { transform: translate(-4px, calc(var(--lift) * 4px)) rotate(2deg) scale(1.03); }
+  50%      { transform: translate(-1px, calc(var(--lift) * 9px)) rotate(3deg) scale(1.06); }
+  75%      { transform: translate(3px, calc(var(--lift) * 5px)) rotate(-1deg) scale(1.02); }
+}
+@keyframes jelly-glow {
+  0%, 100% { box-shadow: 0 0 12px 2px rgba(232,194,122,.45), 0 4px 10px rgba(59,36,22,.22); }
+  50%      { box-shadow: 0 0 24px 7px rgba(255,214,130,.8), 0 6px 12px rgba(59,36,22,.25); }
+}
+.cat-link:hover, .cat-link:focus-visible, .cat-link:hover img, .cat-link:focus-visible img { animation-play-state: paused; }
+.cat-link:hover img, .cat-link:focus-visible img { transform: scale(1.14); }
 .cat-link:focus-visible { outline: 3px solid var(--pumpkin); outline-offset: 3px; }
-@media (min-width: 720px) { .cat-link { width: 52px; height: 52px; right: 12px; bottom: 12px; } }
+@media (min-width: 720px) {
+  .cat-link { width: 52px; height: 52px; right: 8px; }
+  #photos > li:nth-child(odd) .frame[data-cat] figcaption { padding-right: 68px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cat-link, .cat-link img { animation: none; }
+  .cat-link img { transition: none; }
+}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="sp" viewBox="0 0 24 24"><path d="M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z"/></symbol>
