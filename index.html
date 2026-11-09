@@ -232,6 +232,18 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
 .cat-ava img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; display: block; border: 4px solid rgba(251,243,226,.4); box-shadow: 0 0 26px 4px rgba(232,194,122,.55), 0 8px 16px rgba(59,36,22,.28); }
 .slot.s7 { background: linear-gradient(160deg, #A8392B, #D9772B); }
 .slot.s8 { background: linear-gradient(200deg, #6B6B35, #D9A21B); }
+/* hint letters turn into treats (text-to-image letters) */
+.hint.fx { font-size: clamp(2.1rem, 9vw, 3.1rem); font-weight: 700; line-height: 1; display: flex; justify-content: center; align-items: center; min-height: 1.5em; touch-action: pan-y pinch-zoom; user-select: none; -webkit-user-select: none; position: relative; z-index: 6; }
+.fx-word { display: inline-flex; }
+.fx-space { width: .3em; }
+.fx-letter { position: relative; display: inline-grid; align-items: center; height: 1.2em; transition: padding-inline .55s cubic-bezier(.22,1,.36,1); cursor: default; }
+.fx-char { grid-area: 1 / 1; justify-self: center; line-height: 1; }
+.fx-letter.active .fx-char, .fx-letter.pending .fx-char { visibility: hidden; }
+.fx-letter.returning .fx-char { animation: fx-return .62s cubic-bezier(.22,1,.36,1) both; }
+@keyframes fx-return { 0%,20% { opacity: 0; transform: scale(.88); } 65% { opacity: 1; transform: scale(1.035); } 100% { opacity: 1; transform: scale(1); } }
+.fx-sticker { position: absolute; top: 50%; left: 50%; translate: -50% -50%; z-index: 1; pointer-events: none; }
+.fx-sticker svg { display: block; height: 1.2em; width: auto; filter: drop-shadow(0 4px 4px rgba(59,36,22,.3)); }
+@media (prefers-reduced-motion: reduce) { .fx-letter { transition: none; } .fx-letter.returning .fx-char { animation: none; } .fx-sticker { display: none; } }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="sp" viewBox="0 0 24 24"><path d="M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z"/></symbol>
@@ -291,7 +303,7 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
       <button class="treat" style="--i:4;--r:6deg" aria-label="Peach galette"><svg class="" viewBox="0 0 260 214" style="" ><use href="#t-galette"/></svg></button>
     </div>
   </div>
-  <p class="hint">tap the cats</p>
+  <p class="hint fx" id="hint" aria-label="tap the cats">tap the cats</p>
 </main>
 
 <div id="autumn" class="autumn" hidden>
@@ -371,6 +383,127 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
 <div class="toast" id="toast" role="status"></div>
 
 <script>
+/* Hint letters turn into treats on hover / touch, then spring back.
+   Adapted from boknowsworld/boknows-text-image-template (MIT). */
+var setHint = (function () {
+  var hint = document.getElementById('hint');
+  var FOODS = [['pretzel',260,223],['pie',259,260],['croissant',256,260],['cheesecake',260,232],['galette',260,214],
+               ['toast',260,245],['mug',238,260],['apple',260,257],['figs',255,260],['pumpkin',210,260]];
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  var states = [], queue = [], hovered = null, inside = false, autoTimer, introTimers = [], lastAuto = -1, current = '';
+  var ANG = [-9,7,-5,8,-7,6,-4], DY = [3,-2,2,-3,1,3,-1];
+
+  function onEntrance() { return !document.getElementById('enter').hidden && !document.hidden; }
+  function spring(angle, y) {
+    var f = [];
+    for (var i = 0; i <= 40; i++) {
+      var t = i / 40, v = i === 40 ? 1 : 1 - Math.exp(-7.2 * t) * (Math.cos(10.5 * t) + .24 * Math.sin(10.5 * t));
+      f.push({ offset: t, transform: 'translateY(' + (y + 8 * (1 - v)) + 'px) rotate(' + (angle - 8 * (1 - v)) + 'deg) scale(' + (.35 + .65 * v) + ')' });
+    }
+    return f;
+  }
+  function hide(s) {
+    clearTimeout(s.timer);
+    var st = s.el.querySelector('.fx-sticker'), was = s.active;
+    s.active = false; s.el.classList.remove('active', 'pending');
+    s.el.style.paddingInline = '0em';
+    if (!was) return;
+    s.el.classList.remove('returning'); void s.el.offsetWidth; s.el.classList.add('returning');
+    if (st && st.animate && !reduced.matches) {
+      var pose = getComputedStyle(st).transform; if (pose === 'none') pose = '';
+      st.getAnimations().forEach(function (a) { a.cancel(); });
+      var a = st.animate([
+        { transform: pose, opacity: 1, offset: 0 },
+        { transform: pose + ' scale(1.055)', opacity: 1, offset: .2 },
+        { transform: pose + ' scale(.7)', opacity: .42, offset: .62 },
+        { transform: pose + ' scale(.35)', opacity: 0, offset: 1 }
+      ], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+      a.onfinish = function () { st.remove(); };
+    } else if (st) st.remove();
+  }
+  function show(s, opt) {
+    opt = opt || {};
+    if (reduced.matches) return;
+    clearTimeout(s.timer);
+    var pool = s.foods.filter(function (f) { return f !== s.last; });
+    var food = pool[Math.floor(Math.random() * pool.length)]; s.last = food;
+    s.active = true; s.el.classList.remove('pending', 'returning'); s.el.classList.add('active');
+    var old = s.el.querySelector('.fx-sticker'); if (old) old.remove();
+    var st = document.createElement('span'); st.className = 'fx-sticker';
+    st.innerHTML = '<svg viewBox="0 0 ' + food[1] + ' ' + food[2] + '" style="width:' + (1.2 * food[1] / food[2]).toFixed(3) + 'em"><use href="#t-' + food[0] + '"/></svg>';
+    s.el.appendChild(st);
+    // make room so neighbours step aside
+    var glyph = s.char.getBoundingClientRect().width / parseFloat(getComputedStyle(hint).fontSize);
+    var pad = Math.min(.32, Math.max(.12, (1.2 * food[1] / food[2] - glyph) * .5));
+    s.el.style.paddingInline = (opt.intro ? Math.min(pad, .08) : pad) + 'em';
+    if (st.animate) st.animate(spring(ANG[s.i % 7], DY[s.i % 7]), { duration: 340, fill: 'both' });
+    queue = queue.filter(function (i) { return i !== s.i; }); queue.push(s.i);
+    if (!opt.intro) while (queue.length > 4) hide(states[queue.shift()]);
+    if (!opt.intro && hovered !== s.i) s.timer = setTimeout(function () { if (hovered !== s.i) hide(s); }, opt.auto ? 1000 : 420);
+  }
+  function clearIntro() { introTimers.forEach(clearTimeout); introTimers = []; }
+  function schedule(delay) {
+    clearTimeout(autoTimer);
+    if (inside || reduced.matches || !states.length) return;
+    autoTimer = setTimeout(function () {
+      if (!onEntrance()) { schedule(); return; }
+      var pick = states.filter(function (s) { return s.i !== lastAuto; });
+      var s = pick[Math.floor(Math.random() * pick.length)]; lastAuto = s.i;
+      show(s, { auto: true }); schedule();
+    }, delay || 1300 + 1500 * Math.random());
+  }
+  function intro() {
+    clearIntro(); clearTimeout(autoTimer);
+    if (reduced.matches) return;
+    states.forEach(function (s, i) { s.el.classList.add('pending'); introTimers.push(setTimeout(function () { show(s, { intro: true }); }, i * 40)); });
+    var order = states.slice().sort(function () { return Math.random() - .5; });
+    order.forEach(function (s, i) { introTimers.push(setTimeout(function () { hide(s); }, 40 * states.length + 660 + 45 * i)); });
+    schedule(40 * states.length + 1700 + 1000 * Math.random());
+  }
+  function build(text) {
+    clearIntro(); clearTimeout(autoTimer);
+    states = []; queue = []; hovered = null; hint.textContent = '';
+    var i = 0;
+    text.split(' ').forEach(function (word, wi) {
+      if (wi) { var sp = document.createElement('span'); sp.className = 'fx-space'; hint.appendChild(sp); }
+      var w = document.createElement('span'); w.className = 'fx-word'; w.setAttribute('aria-hidden', 'true');
+      Array.from(word).forEach(function (ch) {
+        var el = document.createElement('span'); el.className = 'fx-letter'; el.dataset.i = i;
+        var c = document.createElement('span'); c.className = 'fx-char'; c.textContent = ch; el.appendChild(c); w.appendChild(el);
+        // each letter has its own treat plus a second one for variety
+        states.push({ el: el, char: c, i: i, foods: [FOODS[i % FOODS.length], FOODS[(i + 3) % FOODS.length]], last: null, active: false, timer: null });
+        i++;
+      });
+      hint.appendChild(w);
+    });
+    hint.setAttribute('aria-label', text);
+  }
+  function point(e) {
+    inside = true; clearTimeout(autoTimer); clearIntro();
+    var hit = document.elementFromPoint(e.clientX, e.clientY);
+    hit = hit && hit.closest && hit.closest('.fx-letter');
+    var next = hit && hint.contains(hit) ? Number(hit.dataset.i) : null;
+    if (next === hovered) return;
+    var old = hovered; hovered = next;
+    if (old !== null && states[old] && states[old].active) hide(states[old]);
+    if (next !== null) show(states[next]);
+  }
+  function leave() { inside = false; var old = hovered; hovered = null; if (old !== null && states[old] && states[old].active) hide(states[old]); schedule(); }
+  hint.addEventListener('pointermove', point);
+  hint.addEventListener('pointerdown', point);
+  hint.addEventListener('pointerleave', leave);
+  hint.addEventListener('pointercancel', leave);
+  hint.addEventListener('pointerup', function (e) { if (e.pointerType !== 'mouse') leave(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) clearTimeout(autoTimer); else schedule(); });
+  if (reduced.addEventListener) reduced.addEventListener('change', function () { if (reduced.matches) { clearIntro(); clearTimeout(autoTimer); states.forEach(hide); } else intro(); });
+
+  return function (text) {
+    if (text === current && states.length) return;
+    current = text; build(text);
+    if (onEntrance()) intro(); else schedule();
+  };
+})();
+setHint('tap the cats');
 (function () {
   var enter = document.getElementById('enter');
   var autumn = document.getElementById('autumn');
@@ -388,7 +521,7 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
     enter.hidden = isAutumn; autumn.hidden = h !== '#autumn';
     catPage.hidden = !isCat;
     if (isCat) showCat(h.slice(5));
-    if (!isAutumn) { scene.classList.remove('pour'); enter.classList.remove('leaving'); busy = false; document.querySelector('.hint').textContent = 'tap the cats'; }
+    if (!isAutumn) { scene.classList.remove('pour'); enter.classList.remove('leaving'); busy = false; setHint('tap the cats'); }
     window.scrollTo(0, 0);
   }
   var catPage = document.getElementById('cat');
@@ -411,7 +544,7 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
   function pour() {
     if (busy) return; busy = true;
     scene.classList.add('pour');
-    document.querySelector('.hint').textContent = 'pick a treat';
+    setHint('pick a treat');
   }
   function go() {
     if (enter.classList.contains('leaving')) return;
@@ -462,4 +595,5 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
   window.addEventListener('hashchange', route);
   route();
 })();
+
 </script>
