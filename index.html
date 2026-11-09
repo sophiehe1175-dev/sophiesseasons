@@ -88,8 +88,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tape { position: absolute; width: 86px; height: 26px; background: rgba(217,162,27,.55); top: -12px; left: 50%; margin-left: -43px; transform: rotate(-4deg); }
 .stripe { height: 34px; margin-block: 8px 32px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--brick) 0 28px, var(--paper) 28px 34px, var(--mustard) 34px 62px, var(--paper) 62px 68px, var(--olive) 68px 96px, var(--paper) 96px 102px, #D99A8A 102px 130px, var(--paper) 130px 136px); opacity: .9; }
 .gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 40px 28px; }
-.frame { position: relative; background: var(--paper); padding: 12px 12px 14px; box-shadow: 0 8px 20px rgba(59,36,22,.2); transform: rotate(var(--tilt, 0deg)); transition: transform .3s ease; }
-.frame:hover { transform: rotate(0deg) scale(1.03); z-index: 2; }
+.frame { position: relative; background: var(--paper); padding: 12px 12px 14px; box-shadow: 0 8px 20px rgba(59,36,22,.2); transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--tilt, 0deg)); transition: transform .3s ease; cursor: grab; }
+.frame:hover { transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(0deg) scale(1.03); z-index: 2; }
+.frame.held { transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(calc(var(--tilt, 0deg) * -1.4)) scale(1.07); transition: none; z-index: 30; cursor: grabbing; box-shadow: 0 22px 36px rgba(59,36,22,.34); user-select: none; -webkit-user-select: none; }
+.frame.dropped { z-index: 20; }
+.frame, .frame img { -webkit-user-drag: none; -webkit-touch-callout: none; }
 .frame:nth-child(4n+1) { --tilt: -2.4deg; } .frame:nth-child(4n+2) { --tilt: 1.8deg; } .frame:nth-child(4n+3) { --tilt: -1deg; } .frame:nth-child(4n) { --tilt: 2.6deg; }
 .frame .tape { top: -13px; background: rgba(168,57,43,.4); }
 .frame:nth-child(even) .tape { background: rgba(107,107,53,.45); transform: rotate(5deg); }
@@ -809,6 +812,47 @@ setHint('tap the cats');
     function fallback() { var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); say('Selected. Press copy on your keyboard.'); }
     try { navigator.clipboard.writeText(el.textContent).then(function () { say('Copied'); }, fallback); } catch (e) { fallback(); }
   });
+
+  // drag the photo frames around like a scrapbook (mouse: drag; touch: press and hold, then drag)
+  (function () {
+    var cur = null, z = 0, sx, sy, ox, oy, minX, maxX, moved = false, timer = null, pid = null, startEvt = null, reduce = false;
+    function frameOf(t) { return t.closest && t.closest('#photos .frame, #bjd-photos .frame'); }
+    function begin(f, e) {
+      cur = f; moved = false;
+      ox = parseFloat(f.style.getPropertyValue('--dx')) || 0; oy = parseFloat(f.style.getPropertyValue('--dy')) || 0;
+      var r = f.getBoundingClientRect();
+      minX = ox - r.left + 6; maxX = ox + (window.innerWidth - r.right) - 6;
+    }
+    function lift() { if (cur) { cur.classList.add('held'); if (navigator.vibrate) try { navigator.vibrate(8); } catch (x) {} } }
+    document.addEventListener('pointerdown', function (e) {
+      if (e.button > 0) return;
+      var f = frameOf(e.target); if (!f || (e.target.closest && e.target.closest('.cat-link'))) return;
+      sx = e.clientX; sy = e.clientY; pid = e.pointerId; begin(f, e);
+      if (e.pointerType === 'touch') { timer = setTimeout(function () { timer = null; moved = true; lift(); }, 320); }
+    });
+    document.addEventListener('pointermove', function (e) {
+      if (!cur || e.pointerId !== pid) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (e.pointerType === 'touch') {
+        if (timer) { if (Math.abs(dx) + Math.abs(dy) > 8) { clearTimeout(timer); timer = null; cur = null; } return; }
+      } else if (!moved) {
+        if (Math.abs(dx) + Math.abs(dy) < 5) return;
+        moved = true; lift();
+      }
+      cur.style.setProperty('--dx', Math.max(minX, Math.min(maxX, ox + dx)) + 'px');
+      cur.style.setProperty('--dy', (oy + dy) + 'px');
+    });
+    function end() {
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (cur) { cur.classList.remove('held'); if (moved) { cur.classList.add('dropped'); cur.style.zIndex = 20 + (++z); suppress = true; setTimeout(function () { suppress = false; }, 60); } }
+      cur = null;
+    }
+    var suppress = false;
+    document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
+    document.addEventListener('touchmove', function (e) { if (cur && moved) e.preventDefault(); }, { passive: false });
+    document.addEventListener('click', function (e) { if (suppress) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+    document.addEventListener('dragstart', function (e) { if (frameOf(e.target)) e.preventDefault(); });
+  })();
   window.addEventListener('hashchange', route);
   route();
 })();
