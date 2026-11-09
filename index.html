@@ -255,12 +255,12 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
 /* cat avatar on each main photo: floats like a jellyfish just outside the photo */
 #photos, #photos > li, #photos .frame, .photo-wrap { overflow: visible; }
 .photo-wrap { position: relative; display: block; }
-.cat-link { position: absolute; z-index: 4; right: 6px; width: 50px; display: block; -webkit-tap-highlight-color: transparent;
+.cat-link { position: absolute; z-index: 4; right: 6px; width: 46px; display: block; border-radius: 50%; -webkit-tap-highlight-color: transparent;
   --dur: 7.5s; --delay: -1s; animation: jelly-float var(--dur) ease-in-out var(--delay) infinite; }
 .cat-link .face { width: 100%; transition: transform .3s ease; animation: jelly-glow var(--dur) ease-in-out var(--delay) infinite; }
 /* odd frames: below the photo, beside the caption; drifts down and away from the photo */
 #photos .cat-link { top: calc(100% - 3px); --lift: 1; }
-#photos .frame[data-cat] figcaption { padding-right: 62px; min-height: 66px; }
+#photos .frame[data-cat] figcaption { padding-right: 58px; min-height: 56px; }
 #photos > li:nth-child(5n+1) .cat-link { --dur: 6s;   --delay: -1s; }
 #photos > li:nth-child(5n+2) .cat-link { --dur: 7.5s; --delay: -3s; }
 #photos > li:nth-child(5n+3) .cat-link { --dur: 9s;   --delay: -5s; }
@@ -273,31 +273,36 @@ body.is-autumn { background: var(--cream) url("data:image/jpeg;base64,/9j/4AAQSk
   75%      { transform: translate(3px, calc(var(--lift) * 5px)) rotate(-1deg) scale(1.02); }
 }
 @keyframes jelly-glow {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(232,194,122,.45)) drop-shadow(0 4px 5px rgba(59,36,22,.28)); }
-  50%      { filter: drop-shadow(0 0 13px rgba(255,214,130,.9)) drop-shadow(0 5px 6px rgba(59,36,22,.3)); }
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(232,194,122,.4)) drop-shadow(0 4px 5px rgba(59,36,22,.28)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(255,222,140,1)) drop-shadow(0 5px 6px rgba(59,36,22,.3)); }
 }
 .cat-link:hover, .cat-link:focus-visible, .cat-link:hover .face, .cat-link:focus-visible .face { animation-play-state: paused; }
 .cat-link:hover .face, .cat-link:focus-visible .face { transform: scale(1.14); }
 .cat-link:focus-visible { outline: 3px solid var(--pumpkin); outline-offset: 3px; }
 @media (min-width: 720px) {
-  .cat-link { width: 62px; right: 8px; }
-  #photos .frame[data-cat] figcaption { padding-right: 76px; min-height: 80px; }
+  .cat-link { width: 54px; right: 8px; }
+  #photos .frame[data-cat] figcaption { padding-right: 68px; min-height: 64px; }
 }
+/* twinkling sparkles around each floating cat bubble */
+.cat-link::before, .cat-link::after { content: ""; position: absolute; z-index: 5; pointer-events: none; background: #FFE9A8; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter: drop-shadow(0 0 3px #FFD36B); opacity: 0; animation: tw-sparkle 2.6s ease-in-out infinite; }
+.cat-link::before { width: 13px; height: 13px; top: -6px; right: -5px; animation-delay: var(--delay); }
+.cat-link::after { width: 9px; height: 9px; bottom: 2px; left: -6px; animation-duration: 3.4s; animation-delay: calc(var(--delay) - 1.1s); }
+@keyframes tw-sparkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 45% { opacity: 1; transform: scale(1.15) rotate(35deg); } 60% { opacity: .85; transform: scale(.9) rotate(50deg); } }
+@media (prefers-reduced-motion: reduce) { .cat-link::before, .cat-link::after { animation: none; opacity: .8; } }
 @media (prefers-reduced-motion: reduce) {
   .cat-link, .cat-link .face { animation: none; }
   .cat-link .face { transition: none; }
 }
 /* round cat face (cropped from the cat's own photo) */
-.face { position: relative; display: block; aspect-ratio: 100 / 124; filter: drop-shadow(0 0 9px rgba(232,194,122,.6)) drop-shadow(0 4px 5px rgba(59,36,22,.3)); }
-.face-in { position: absolute; inset: 0; display: block; overflow: hidden; background: var(--paper); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 124'%3E%3Cpath d='M45 9 C45 2 47 0 50 0 C53 0 55 2 55 9Z'/%3E%3Cpath d='M50 8 C78 8 96 30 94 62 C92 92 70 114 50 124 C30 114 8 92 6 62 C4 30 22 8 50 8Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 124'%3E%3Cpath d='M45 9 C45 2 47 0 50 0 C53 0 55 2 55 9Z'/%3E%3Cpath d='M50 8 C78 8 96 30 94 62 C92 92 70 114 50 124 C30 114 8 92 6 62 C4 30 22 8 50 8Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
-.face-in::after { content: ""; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 124'%3E%3Cdefs%3E%3Cpattern id='p' width='20' height='20' patternUnits='userSpaceOnUse' patternTransform='rotate(0)'%3E%3Cpath d='M0 10 L10 0 L20 10 L10 20Z' fill='none' stroke='%233B2416' stroke-opacity='.24' stroke-width='1.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='124' fill='url(%23p)'/%3E%3Cpath d='M50 8 C78 8 96 30 94 62 C92 92 70 114 50 124 C30 114 8 92 6 62 C4 30 22 8 50 8Z' fill='none' stroke='%23FBF3E2' stroke-opacity='.9' stroke-width='3'/%3E%3Cpath d='M45 9 C45 2 47 0 50 0 C53 0 55 2 55 9Z' fill='%236B4A2B'/%3E%3C/svg%3E") center / 100% 100% no-repeat; pointer-events: none; }
+.face { position: relative; display: block; aspect-ratio: 1; border-radius: 50%; filter: drop-shadow(0 0 9px rgba(232,194,122,.6)) drop-shadow(0 4px 5px rgba(59,36,22,.3)); }
+.face-in { position: absolute; inset: 0; display: block; overflow: hidden; border-radius: 50%; background: var(--paper); border: 3px solid rgba(251,243,226,.55); }
 .face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.cat-ava .face { width: 104px; }
+.cat-ava .face { width: 120px; }
 /* "The cats of autumn" row */
 .cat-row { justify-content: center; gap: 24px 16px; }
 .cat-bubble { width: clamp(92px, 24vw, 150px); display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--chestnut); transition: transform .25s ease; -webkit-tap-highlight-color: transparent; }
 .cat-bubble:hover, .cat-bubble:focus-visible { transform: scale(1.07); }
-.cat-bubble:focus-visible { outline: 3px solid var(--pumpkin); outline-offset: 6px; border-radius: 12px; }
+.cat-bubble:focus-visible { outline: 3px solid var(--pumpkin); outline-offset: 6px; border-radius: 50%; }
 .cat-bubble .face { width: 100%; }
 .cat-bubble .cap { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.2; text-align: center; padding-top: 8px; text-shadow: 0 0 3px #FBF3E2, 0 0 8px #FBF3E2, 0 0 14px #FBF3E2; }
 @media (prefers-reduced-motion: reduce) { .cat-bubble { transition: none; } }
@@ -402,11 +407,6 @@ html { overflow-x: clip; }
 /* default arrangement of the cat gallery (matches Sophie's own drag layout) */
 #photos > li:nth-child(1) { order: 1; } #photos > li:nth-child(5) { order: 2; } #photos > li:nth-child(4) { order: 3; }
 #photos > li:nth-child(3) { order: 4; } #photos > li:nth-child(2) { order: 5; } #photos > li:nth-child(6) { order: 6; }
-@media (min-width: 720px) {
-  #photos > li:nth-child(5) .photo { aspect-ratio: 1 / 1; height: auto; object-fit: cover; object-position: 72% 50%; }
-  #photos > li:nth-child(3) .photo { aspect-ratio: 1 / 1; height: auto; object-fit: cover; object-position: 38% 55%; }
-  #photos > li:nth-child(2) .photo { aspect-ratio: 1 / 1; height: auto; object-fit: cover; object-position: 50% 40%; }
-}
 </style>
 </head>
 <body>
