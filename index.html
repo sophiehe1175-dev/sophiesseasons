@@ -50,6 +50,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .chip { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; background: var(--paper); border: 2px dashed var(--coffee); border-radius: 999px; padding: 2px 14px; line-height: 1.4; }
 .chip[aria-current="true"] { background: var(--pumpkin); color: var(--paper); border-style: solid; border-color: var(--pumpkin); }
 .chip:hover { transform: rotate(-3deg); }
+.chip.pf-link { text-decoration: none; color: var(--paper); background: #3B2416; border: 2px solid #3B2416; display: inline-block; }
 .chip[data-season="spring"] { background: #C9687D; color: var(--paper); border-style: solid; border-color: #C9687D; }
 .chip[data-season="summer"] { background: #6FA5C9; color: var(--paper); border-style: solid; border-color: #6FA5C9; }
 .kicker { font-family: var(--font-display); font-size: 1.5rem; color: var(--coffee); margin: 0; text-align: center; }
@@ -552,6 +553,7 @@ body.is-summer { background: #EEF3F4 url("data:image/webp;base64,UklGRtawAQBXRUJ
     <button class="chip" data-season="summer">Summer</button>
     <button class="chip" data-season="autumn" aria-current="true">Autumn</button>
     <button class="chip" data-season="winter">Winter</button>
+    <a class="chip pf-link" href="portfolio.html">Selected work</a>
   </nav>
   <div class="leaves" aria-hidden="true">
     <span class="fall" style="left:6%;--dx:50px;--rot:260deg;animation-delay:-2s;color:#D9772B"><svg width="34" height="34"><use href="#i-roll"/></svg></span>
@@ -1063,7 +1065,7 @@ setHint('Portfolio');
   document.getElementById('back').addEventListener('click', function () { location.hash = ''; });
   document.getElementById('back-spring').addEventListener('click', function () { location.hash = ''; });
   document.getElementById('back-summer').addEventListener('click', function () { location.hash = ''; });
-  document.querySelectorAll('.chip').forEach(function (c) {
+  document.querySelectorAll('.chip[data-season]').forEach(function (c) {
     c.addEventListener('click', function () {
       var s = c.getAttribute('data-season');
       if (s === 'autumn') { go(); return; }
