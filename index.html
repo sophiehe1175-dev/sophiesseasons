@@ -543,7 +543,7 @@ body.music-on .bgm-notes i{animation:bgm-note 3s ease-in infinite}
       <button class="treat" style="--i:4;--r:6deg" aria-label="Peach galette"><svg class="" viewBox="0 0 260 214" style="" ><use href="#t-galette"/></svg></button>
     </div>
   </div>
-  <p class="hint fx" id="hint" aria-label="portfolio">portfolio</p>
+  <p class="hint fx" id="hint" aria-label="Portfolio">Portfolio</p>
 </main>
 
 <div id="autumn" class="autumn" hidden>
@@ -833,7 +833,7 @@ var setHint = (function () {
     if (onEntrance()) intro(); else schedule();
   };
 })();
-setHint('portfolio');
+setHint('Portfolio');
 (function () {
   var enter = document.getElementById('enter');
   var autumn = document.getElementById('autumn');
@@ -853,7 +853,7 @@ setHint('portfolio');
     document.getElementById('spring').hidden = !isSpring;
     catPage.hidden = !isCat;
     if (isCat) showCat(h.slice(5));
-    if (!isAutumn && !isSpring) { scene.classList.remove('pour'); enter.classList.remove('leaving'); busy = false; setHint('portfolio'); }
+    if (!isAutumn && !isSpring) { scene.classList.remove('pour'); enter.classList.remove('leaving'); busy = false; setHint('Portfolio'); }
     window.scrollTo(0, 0);
   }
   var catPage = document.getElementById('cat');
