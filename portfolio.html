@@ -52,6 +52,15 @@ figcaption { margin-top:12px; font-family:'Fraunces',serif; font-style:italic; f
 @media (max-width:600px) { .wrap { padding:0 16px; } .grp { padding-top:56px; } .pf { margin-bottom:52px; } }
 .panel .statement .line { font-family:'Fraunces',Georgia,serif; font-style:italic; font-size:1.35rem; line-height:1.45; color:#EDE5DC; max-width:22ch; }
 .coda { padding-top:40px; }
+.outro { margin-top:72px; }
+.panel h2.ep { font-family:'Fraunces',Georgia,serif; font-weight:400; font-style:italic; font-size:clamp(2rem,3.4vw,2.8rem); color:#fff; margin:0; }
+@media (min-width:900px) {
+  .outro { grid-template-columns: 380px minmax(0,1fr); }
+  .outro .panel { border-left:0; border-right:1px solid #2A231F; }
+  .outro .photo img { object-position:50% 50%; }
+}
+@media (min-width:1300px) { .outro { grid-template-columns: 440px minmax(0,1fr); } }
+@media (max-width:899px) { .outro .panel { order:2; } }
 </style>
 </head>
 <body>
@@ -94,10 +103,16 @@ figcaption { margin-top:12px; font-family:'Fraunces',serif; font-style:italic; f
     <figure class="pf wide"><img src="portfolio/13.jpg" width="2000" height="1333" alt="A ginger-and-white cat on a wall turning mid-meow toward the lens, one paw raised, beside a security camera" loading="lazy"><figcaption><span class="n">15</span>Caught on camera.</figcaption></figure>
     <figure class="pf tall"><img src="portfolio/14.jpg" width="866" height="1300" alt="A calico cat with green eyes resting its paws on grey paving stones" loading="lazy"><figcaption><span class="n">16</span>Calico, paws crossed, unimpressed.</figcaption></figure>
   </section>
-  <section class="grp coda">
-    <figure class="pf wide"><img src="portfolio/20.jpg" width="2000" height="1125" alt="Windy in black and white, chin resting on a woven mat, eyes wandering to the side" loading="lazy"><figcaption><span class="n">17</span>Chin down, eyes wandering.</figcaption></figure>
-  </section>
-  <footer class="end"><span>Photographs &copy; Sophie. All rights reserved.</span><a href="./">See everything in the seasons scrapbook &rarr;</a></footer>
+</div>
+<section class="spread outro">
+  <div class="panel">
+    <div></div>
+    <div><h2 class="ep">Epilogue</h2></div>
+    <nav><span>Photographs &copy; Sophie</span><a href="./">The seasons scrapbook &rarr;</a></nav>
+  </div>
+  <figure class="photo" style="margin:0"><img src="portfolio/20.jpg" width="2000" height="1125" alt="Windy in black and white, chin resting on a woven mat, eyes wandering to the side"></figure>
+</section>
+<div>
 </div>
 </body>
 </html>
