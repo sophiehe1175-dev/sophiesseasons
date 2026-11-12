@@ -635,7 +635,7 @@ body.is-summer { background: #F8E8B1 url("data:image/webp;base64,UklGRrABAQBXRUJ
     <div class="treats" id="treats">
       <button class="treat" style="--i:0;--r:-6deg" aria-label="Pretzel"><svg class="" viewBox="0 0 260 223" style="" ><use href="#t-pretzel"/></svg></button>
       <button class="treat spring" data-dest="spring" style="--i:1;--r:4deg" aria-label="Strawberry cake: go to spring"><svg class="" viewBox="0 0 457 520" style="" ><use href="#s-cake"/></svg></button>
-      <button class="treat mid" style="--i:2;--r:0deg" aria-label="Croissant with a lace bow"><svg class="" viewBox="0 0 256 260" style="" ><use href="#t-croissant"/></svg></button>
+      <button class="treat mid" data-href="portfolio.html" style="--i:2;--r:0deg" aria-label="Croissant with a lace bow: see selected work"><svg class="" viewBox="0 0 256 260" style="" ><use href="#t-croissant"/></svg></button>
       <button class="treat spring" data-dest="spring" style="--i:3;--r:-4deg" aria-label="Teacup: go to spring"><svg class="" viewBox="0 0 520 442" style="" ><use href="#s-cup"/></svg></button>
       <button class="treat summer" data-dest="summer" style="--i:4;--r:6deg" aria-label="Lemon heart: go to summer"><svg class="" viewBox="0 0 520 459" style="" ><use href="#su-heart-lemon"/></svg></button>
     </div>
@@ -1226,7 +1226,7 @@ setHint('Portfolio');
     enter.classList.add('leaving');
     setTimeout(function () { location.hash = to; }, 700);
   }
-  document.querySelectorAll('.treat').forEach(function (b) { b.addEventListener('click', function () { go(b.getAttribute('data-dest') || 'autumn'); }); });
+  document.querySelectorAll('.treat').forEach(function (b) { b.addEventListener('click', function () { var href = b.getAttribute('data-href'); if (href) { location.href = href; return; } go(b.getAttribute('data-dest') || 'autumn'); }); });
   document.getElementById('hint').addEventListener('click', pour);   /* tap "Portfolio" to open the second page */
   /* pager: the treats are page numbers 1-4 */
   /* each season (autumn, spring) has its own pager that only switches its own pages */
